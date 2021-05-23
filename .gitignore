@@ -1,0 +1,7 @@
+__pycache__/
+.vscode
+*terraform*
+.mypy*
+builds/
+*/tfplan
+.DS_Store
