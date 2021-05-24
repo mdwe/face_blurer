@@ -6,7 +6,7 @@ from pathlib import Path
 from PIL import Image
 from botocore.exceptions import ClientError
 from botocore.stub import Stubber
-from face_blurer import SourceImage, upload_image_to_s3, lambda_handler, detect_faces
+from face_blurer.face_blurer import SourceImage, upload_image_to_s3, lambda_handler, detect_faces
 
 logger = logging.getLogger(__name__)
 
@@ -91,8 +91,8 @@ def test_event_processing_with_faces(
     source_image,
     mocker
 ):
-    faces = mocker.patch("face_blurer.detect_faces", return_value=["test"])
-    mocker.patch("face_blurer.Blurer.blur", return_value=True)
+    faces = mocker.patch("face_blurer.face_blurer.detect_faces", return_value=["test"])
+    mocker.patch("face_blurer.face_blurer.Blurer.blur", return_value=True)
     response = lambda_handler(trigger_event, {})
 
     assert response.get("statusCode") == 201
@@ -105,7 +105,7 @@ def test_event_processing_without_faces(
     source_image,
     mocker
 ):
-    faces = mocker.patch("face_blurer.detect_faces", return_value=[])
+    faces = mocker.patch("face_blurer.face_blurer.detect_faces", return_value=[])
     response = lambda_handler(trigger_event, {})
 
     assert response.get("statusCode") == 200
@@ -117,7 +117,7 @@ def test_event_processing_with_exception(
     trigger_event,
     mocker
 ):
-    mocker.patch("face_blurer.detect_faces", side_effect=Exception('mocked error'))
+    mocker.patch("face_blurer.face_blurer.detect_faces", side_effect=Exception('mocked error'))
     response = lambda_handler(trigger_event, {})
 
     assert response.get("statusCode") == 500
