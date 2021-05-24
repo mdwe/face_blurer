@@ -5,3 +5,5 @@ __pycache__/
 builds/
 */tfplan
 .DS_Store
+report.html
+assets/

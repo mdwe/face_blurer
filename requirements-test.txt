@@ -1,0 +1,6 @@
+moto==2.0.8
+Pillow==8.2.0
+pytest
+pytest-mock
+pytest-html
+boto3

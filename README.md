@@ -42,3 +42,17 @@ terraform apply -var-file=development/development.tfvars --auto-approve
 ```
 terraform destroy -var-file=development/development.tfvars --auto-approve
 ```
+
+### Python tests
+
+Install tests requirements:
+
+```
+pip install -r requirements-test.txt
+```
+
+Run unit tests:
+
+```
+pytest tests --html=report.html --vv
+```

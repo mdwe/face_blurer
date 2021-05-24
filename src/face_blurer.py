@@ -1,12 +1,13 @@
-import json
 import boto3
-from PIL import Image, ImageFilter, ExifTags
+import logging
+from PIL import Image
 from io import BytesIO
 from math import floor
 from os import path, environ
 from dataclasses import dataclass
 
-from pprint import pprint
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -17,50 +18,79 @@ class SourceImage:
 
 
 def lambda_handler(event, context):
-    destination_bucket = environ.get("destination_bucket")
-    record = event['Records'][0]
-    source_image = SourceImage(
-        bucket_arn=record['s3']['bucket']['arn'],
-        bucket_name=record['s3']['bucket']['name'],
-        file_key=record['s3']['object']['key'],
-    )
+    try:
+        destination_bucket = environ.get("destination_bucket")
+        record = event['Records'][0]
+        source_image = SourceImage(
+            bucket_arn=record['s3']['bucket']['arn'],
+            bucket_name=record['s3']['bucket']['name'],
+            file_key=record['s3']['object']['key'],
+        )
 
-    faces_boundaries = detect_faces(source_image)
+        faces_boundaries = detect_faces(source_image)
+        if(len(faces_boundaries) == 0):
+            return {
+                "statusCode": 200,
+                "body": "Faces have been not detected"
+            }
+        # Blur faces form
+        blurer = Blurer(source_image, faces_boundaries, destination_bucket)
+        blurer.blur()
 
-    # Blur faces form 
-    blurer = Blurrer(source_image)
-    blurer.blur_boundaries(faces_boundaries)
-    blurer.save(destination_bucket=destination_bucket)
+        return {
+            "statusCode": 201,
+            "body": f"Blurred image {source_image}"
+        }
+    except Exception:
+        return {
+            "statusCode": 500,
+            "body": "Internal server error"
+        }
 
-    return {
-        'statusCode': 200,
-        'body': f"Blurred image {source_image}"
-    }
 
-def detect_faces(source_image: SourceImage) -> dict:
+def detect_faces(source_image: SourceImage, client=boto3.client('rekognition')) -> dict:
     # use AWS rekognition for source image file
-    client = boto3.client('rekognition')
     response = client.detect_faces(
         Image={'S3Object': {'Bucket': source_image.bucket_name, 'Name': source_image.file_key}},
         Attributes=['ALL']
     )
 
-    print(f"Detected {len(response['FaceDetails'])} faces for photo {source_image.file_key}")
+    logger.info(f"Detected {len(response['FaceDetails'])} faces for photo {source_image.file_key}")
     return response['FaceDetails']
 
 
-class Blurrer:
-    def __init__(self, source_image: SourceImage):
+def upload_image_to_s3(image: Image, destination_bucket: str, destination_key: str, image_format: str = "JPEG") -> dict:
+    buffer = BytesIO()
+    image.save(buffer, image_format)
+    buffer.seek(0)
+    s3 = boto3.resource('s3')
+
+    try:
+        obj = s3.Object(
+            bucket_name=destination_bucket,
+            key=destination_key
+        )
+        s3_response = obj.put(Body=buffer)
+        logger.info(f"File saved at {destination_bucket}/{destination_key}")
+        return s3_response
+    except Exception as ex:
+        logger.error(f"Exeption on upload file to {destination_bucket}/{destination_key}: {ex}")
+        raise ex
+
+
+class Blurer:
+    def __init__(self, source_image: SourceImage, faces_boundaries: list, destination_bucket: str):
         self.bucket = source_image.bucket_name
         self.photo = source_image.file_key
+        self.faces_boundaries = faces_boundaries
+        self.destination_bucket = destination_bucket
 
-        self._loadImage()
+    def blur(self) -> None:
+        format = self._load_image()
+        self._blur_boundaries()
+        upload_image_to_s3(self.img, self.destination_bucket, self.photo, format)
 
-    def blur_boundaries(self, boundaries) -> None:
-        for boundary in boundaries:
-            self._blur_boundary(boundary)
-
-    def _loadImage(self):
+    def _load_image(self) -> str:
         s3 = boto3.resource('s3')
 
         # Grabs the source file
@@ -73,13 +103,17 @@ class Blurrer:
 
         extension = path.splitext(self.photo)[1].lower()
         if extension in ['.jpeg', '.jpg']:
-            self.format = 'JPEG'
-        if extension in ['.png']:
-            self.format = 'PNG'
+            format = 'JPEG'
+        elif extension in ['.png']:
+            format = 'PNG'
+        return format
+
+    def _blur_boundaries(self) -> None:
+        for boundary in self.faces_boundaries:
+            self._blur_boundary(boundary)
 
     def _blur_boundary(self, face: dict) -> None:
         boundaries = face["BoundingBox"]
-        print(self.img.size)
         boundaries_box = (
             floor(self.img.size[0] * boundaries["Left"]),
             floor(self.img.size[1] * boundaries["Top"]),
@@ -87,7 +121,7 @@ class Blurrer:
             floor(self.img.size[1] * boundaries["Top"] + self.img.size[1] * boundaries["Height"])
         )
 
-        print(f"Crop for {boundaries_box}")
+        logger.debug(f"Crop for {boundaries_box}")
         crop_img = self.img.crop(boundaries_box)
 
         width, height = crop_img.size
@@ -98,16 +132,3 @@ class Blurrer:
         pixelated_image_small = crop_img.resize((new_width, new_hight), resample=Image.BILINEAR)
         pixelated_image = pixelated_image_small.resize((width, height), resample=Image.NEAREST)
         self.img.paste(pixelated_image, boundaries_box)
-
-    def save(self, destination_bucket):
-        buffer = BytesIO()
-        self.img.save(buffer, self.format)
-        buffer.seek(0)
-        s3 = boto3.resource('s3')
-        # Uploading the image
-        obj = s3.Object(
-            bucket_name=destination_bucket,
-            key=self.photo
-        )
-        obj.put(Body=buffer)
-        print(f"File saved at {destination_bucket}/{self.photo}")

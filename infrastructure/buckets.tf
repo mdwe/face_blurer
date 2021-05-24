@@ -15,12 +15,12 @@ resource "aws_s3_bucket_policy" "origin" {
         {
             "Effect": "Allow",
             "Action": [
-                "s3:GetObject",
-                "s3:GetObjectVersion"
+                "s3:*"
             ],
             "Principal": "*",
             "Resource": [
-                "arn:aws:s3:::face-blurer-origin-midwo/*"
+              "arn:aws:s3:::face-blurer-origin-midwo",
+              "arn:aws:s3:::face-blurer-origin-midwo/*"
             ]
         }
     ]
