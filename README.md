@@ -14,7 +14,7 @@
 
 Create manualy bucket for backend S3 with name `tf-state-manager` with **enable Bucket Versioning**. Backend also supports state locking and consistency checking via Dynamo DB, which can defined by `dynamodb_table` field - create DynamoDB table with name `tf-state-manager`, the table must have a primary key named LockID with type of string.
 
-#### Build FaceBlurer
+#### Build FaceBlurer environment
 
 Execute all Terraform commands from `infrastructure` directory.
 
@@ -54,5 +54,11 @@ pip install -r requirements-test.txt
 Run unit tests:
 
 ```
-pytest tests --html=report.html --vv
+pytest tests --html=report.html -vv
+```
+
+Run integration tests:
+
+```
+pytest -vv -x --environment="{terraform_workspace_name}" integration_tests --html=report.html
 ```
