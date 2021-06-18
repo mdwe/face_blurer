@@ -15,18 +15,22 @@ def logger() -> logging.Logger:
 
 def pytest_addoption(parser):
     parser.addoption("--environment", action="store", default="test")
+    parser.addoption("--tf_state_bucket_name", action="store", default="tf-state-manager")
 
 
 @pytest.fixture(scope="session", autouse=True)
 def config_arguments(pytestconfig) -> dict:
-    return {"environment": pytestconfig.getoption("environment")}
+    return {
+        "environment": pytestconfig.getoption("environment"),
+        "tf_state_bucket_name": pytestconfig.getoption("tf_state_bucket_name")
+    }
 
 
 @pytest.fixture(scope="session")
 def environment_config(
     logger: logging.Logger, config_arguments: dict
 ) -> EnvConfigProvider:
-    config_provider = EnvConfigProvider(config_arguments["environment"])
+    config_provider = EnvConfigProvider(config_arguments["environment"], config_arguments["tf_state_bucket_name"])
     config = config_provider.get_configuration()
 
     if not config.config:

@@ -12,13 +12,13 @@
 
 #### Prepare AWS requirements [backend.tf]
 
-Create manualy bucket for backend S3 with name `tf-state-manager` with **enable Bucket Versioning**. Backend also supports state locking and consistency checking via Dynamo DB, which can defined by `dynamodb_table` field - create DynamoDB table with name `tf-state-manager`, the table must have a primary key named LockID with type of string.
+Create manually bucket for backend S3 with the name `tf-state-manager` with **enable Bucket Versioning**. The backend also supports state locking and consistency checking via Dynamo DB, which can define by the `dynamodb_table` field - create DynamoDB table with the name `tf-state-manager`, the table must have a primary key named LockID with type of string.
 
 #### Build FaceBlurer environment
 
-Execute all Terraform commands from `infrastructure` directory.
+Execute all Terraform commands from the `infrastructure` directory.
 
-1. Create terraform workspace
+1. Create Terraform workspace
 
 ```
 terraform workspace new $workspace_name
@@ -31,7 +31,7 @@ terraform workspace select $workspace_name
 terraform init
 ```
 
-3. Apply terraform project to AWS
+3. Apply Terraform project to AWS
 
 ```
 terraform apply -var-file=development/development.tfvars --auto-approve
@@ -60,5 +60,5 @@ pytest tests --html=report.html -vv
 Run integration tests:
 
 ```
-pytest -vv -x --environment="{terraform_workspace_name}" integration_tests --html=report.html
+pytest -vv -x --environment="{terraform_workspace_name}" --tf_state_bucket_name="{tf_state_bucket_name}" integration_tests --html=report.html
 ```
