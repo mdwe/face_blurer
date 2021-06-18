@@ -1,5 +1,7 @@
 # FaceBlurer
 
+![Architecture overview](./docs/architecture_overview.png)
+
 ## System requirements:
 
 - terraform [https://www.terraform.io/downloads.html]
