@@ -47,7 +47,7 @@ def check_if_files_exist_in_bucket(
 
 def upload_file(file_name: str, bucket: str, object_name: str) -> bool:
     logger.info(f"Uploading file {file_name} to {bucket}/{object_name}")
-    s3_client = boto3.client('s3')
+    s3_client = boto3.client("s3")
     try:
         s3_client.upload_file(file_name, bucket, object_name)
     except ClientError as e:

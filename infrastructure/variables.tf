@@ -8,7 +8,7 @@ variable "tags" {}
 locals {
   local_tags = {
     Environment = terraform.workspace
-    Project = "FaceBlurer"
+    Project     = "FaceBlurer"
   }
   tags = merge(var.tags, local.local_tags)
 }

@@ -7,7 +7,7 @@ resource "aws_s3_bucket" "origin" {
 
 resource "aws_s3_bucket_policy" "origin" {
   bucket = aws_s3_bucket.origin.id
-  
+
   policy = <<EOF
 {
     "Version": "2012-10-17",

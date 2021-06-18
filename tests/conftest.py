@@ -7,11 +7,7 @@ import tempfile
 
 
 def pytest_sessionstart():
-    sys.path.extend(
-        [
-            os.path.join(os.path.dirname(__file__), "../src")
-        ]
-    )
+    sys.path.extend([os.path.join(os.path.dirname(__file__), "../src")])
 
 
 @pytest.fixture

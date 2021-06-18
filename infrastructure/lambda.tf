@@ -9,8 +9,8 @@ module "blurer_lambda" {
   timeout       = 90
   memory_size   = 512
 
-  tags          = local.tags
-  layers        = ["arn:aws:lambda:eu-central-1:770693421928:layer:Klayers-python38-Pillow:10"]
+  tags   = local.tags
+  layers = ["arn:aws:lambda:eu-central-1:770693421928:layer:Klayers-python38-Pillow:10"]
 
   environment_variables = {
     "destination_bucket" = aws_s3_bucket.destination.bucket

@@ -2,9 +2,10 @@
 
 ## System requirements:
 
-- terraform
-- python 3.8
-- awsume
+- terraform [https://www.terraform.io/downloads.html]
+- python 3.8 [https://www.python.org/downloads/]
+- awsume [https://awsu.me]
+- pre-commit [https://pre-commit.com/]
 
 ## Installation 
 
@@ -12,7 +13,7 @@
 
 #### Prepare AWS requirements [backend.tf]
 
-Create manually bucket for backend S3 with the name `tf-state-manager` with **enable Bucket Versioning**. The backend also supports state locking and consistency checking via Dynamo DB, which can define by the `dynamodb_table` field - create DynamoDB table with the name `tf-state-manager`, the table must have a primary key named LockID with type of string.
+Manually create the S3 bucket for Terraform backend with the name `tf-state-manager` with **enable Bucket Versioning**. The backend also supports state locking and consistency checking via Dynamo DB, which can define by the `dynamodb_table` field - create DynamoDB table with the name `tf-state-manager`, the table must have a primary key named LockID with type of string.
 
 #### Build FaceBlurer environment
 
@@ -43,6 +44,7 @@ terraform apply -var-file=development/development.tfvars --auto-approve
 terraform destroy -var-file=development/development.tfvars --auto-approve
 ```
 
+
 ### Python tests
 
 Install tests requirements:
@@ -61,4 +63,19 @@ Run integration tests:
 
 ```
 pytest -vv -x --environment="{terraform_workspace_name}" --tf_state_bucket_name="{tf_state_bucket_name}" integration_tests --html=report.html
+```
+
+
+### Project tools
+
+Install pre-commit hooks
+
+```
+pre-commit install
+```
+
+You can run pre-commmit manually: 
+
+```
+pre-commit run --all-files
 ```

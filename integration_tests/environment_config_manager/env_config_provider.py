@@ -2,7 +2,9 @@ import boto3
 import os
 import json
 import logging
-from integration_tests.environment_config_manager.env_config_parser import EnvConfigParser
+from integration_tests.environment_config_manager.env_config_parser import (
+    EnvConfigParser,
+)
 
 
 class EnvConfigProvider:

@@ -16,3 +16,4 @@ class EnvConfigParser:
 
             if required_condition:
                 return resource["instances"][0]["attributes"]
+        return {}

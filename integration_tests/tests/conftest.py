@@ -1,5 +1,7 @@
 import pytest
-from integration_tests.environment_config_manager.env_config_parser import EnvConfigParser
+from integration_tests.environment_config_manager.env_config_parser import (
+    EnvConfigParser,
+)
 
 
 @pytest.fixture(scope="session")
