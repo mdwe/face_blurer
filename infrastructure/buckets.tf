@@ -19,8 +19,8 @@ resource "aws_s3_bucket_policy" "origin" {
             ],
             "Principal": "*",
             "Resource": [
-              "arn:aws:s3:::face-blurer-origin-midwo",
-              "arn:aws:s3:::face-blurer-origin-midwo/*"
+              "${aws_s3_bucket.origin.arn}",
+              "${aws_s3_bucket.origin.arn}/*"
             ]
         }
     ]
