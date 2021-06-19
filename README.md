@@ -1,6 +1,6 @@
 # FaceBlurer
 
-![Architecture overview](./docs/architecture_overview.png)
+![Architecture overview](./docs/architecture_overview_flow.png)
 
 ## System requirements:
 
