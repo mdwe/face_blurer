@@ -11,6 +11,7 @@ from integration_tests.environment_config_manager.env_config_parser import (
 from integration_tests.environment_config_manager.env_resource_operations import (
     upload_file,
     check_if_files_exist_in_bucket,
+    delete_file,
 )
 
 
@@ -38,6 +39,18 @@ def test_face_blur(
     blured_image_path = (
         Path(os.path.dirname(os.path.abspath(__file__))) / "images" / "blured"
     )
+
+    # Remove required files from destination bucket if any exists
+    for file_name in upload_images_list:
+        delete_file(buckets_config["destination_bucket"], file_name)
+
+    assert (
+        check_if_files_exist_in_bucket(
+            buckets_config["destination_bucket"], "", upload_images_list, 0, 1
+        )
+        is False
+    )
+
     for file_name in upload_images_list:
         upload_file(
             str(source_image_path / file_name),

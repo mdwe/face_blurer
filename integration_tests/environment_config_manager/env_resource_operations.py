@@ -45,11 +45,24 @@ def check_if_files_exist_in_bucket(
     return False
 
 
-def upload_file(file_name: str, bucket: str, object_name: str) -> bool:
-    logger.info(f"Uploading file {file_name} to {bucket}/{object_name}")
+def upload_file(file_name: str, bucket_name: str, object_key: str) -> bool:
+    logger.info(f"Uploading file {file_name} to {bucket_name}/{object_key}")
     s3_client = boto3.client("s3")
     try:
-        s3_client.upload_file(file_name, bucket, object_name)
+        s3_client.upload_file(file_name, bucket_name, object_key)
+    except ClientError as e:
+        logging.error(e)
+        return False
+    return True
+
+
+def delete_file(bucket_name: str, object_key: str) -> bool:
+    logger.info(f"Delete file from {bucket_name}/{object_key}")
+    s3_client = boto3.client("s3")
+    try:
+        s3_client.delete_object(
+            Bucket=bucket_name, Key=object_key,
+        )
     except ClientError as e:
         logging.error(e)
         return False
