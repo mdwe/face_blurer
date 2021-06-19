@@ -5,7 +5,7 @@ module "blurer_lambda" {
   description   = "FaceBlurer Lambda"
   handler       = "face_blurer.lambda_handler"
   runtime       = "python3.8"
-  source_path   = "../src"
+  source_path   = "../src/face_blurer"
   timeout       = 90
   memory_size   = 512
 
@@ -26,6 +26,18 @@ resource "aws_iam_policy" "blurer" {
 {
     "Version": "2012-10-17",
     "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*"
+            ],
+            "Resource": [
+              "${aws_s3_bucket.origin.arn}",
+              "${aws_s3_bucket.origin.arn}/*"
+            ]
+        },
         {
             "Effect": "Allow",
             "Action": "rekognition:*",

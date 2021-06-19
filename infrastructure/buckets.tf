@@ -5,28 +5,6 @@ resource "aws_s3_bucket" "origin" {
   tags          = local.tags
 }
 
-resource "aws_s3_bucket_policy" "origin" {
-  bucket = aws_s3_bucket.origin.id
-
-  policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "s3:*"
-            ],
-            "Principal": "*",
-            "Resource": [
-              "${aws_s3_bucket.origin.arn}",
-              "${aws_s3_bucket.origin.arn}/*"
-            ]
-        }
-    ]
-}
-EOF
-}
 
 resource "aws_s3_bucket" "destination" {
   bucket        = "${var.project}-destination-${terraform.workspace}"
