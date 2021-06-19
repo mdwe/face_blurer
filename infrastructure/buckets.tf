@@ -3,6 +3,15 @@ resource "aws_s3_bucket" "origin" {
   acl           = "private"
   force_destroy = true
   tags          = local.tags
+
+  lifecycle_rule {
+    id      = "delete_input_files"
+    enabled = true
+    prefix  = "*.[jpeg,jpg,png]"
+    expiration {
+      days = 1
+    }
+  }
 }
 
 
